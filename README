@@ -1,0 +1,44 @@
+Directions for making maps from a pksc halo catalog 
+
+    /src/pks2map contains all of the mapmaking codes. 
+        Maps capabilities so far include:
+            pasted profiles:
+                tSZ   - BBPS profiles 
+                kSZ   - BBPS profiles
+                Kappa - BBPS profiles
+		
+    To use pasted profiles you first need to create the table of signal=signal(M,z,angle):
+        1.) go to /src/
+        2.) $make make_maptable
+        3.) $./bin/make_maptable <fileout> <pressure model> <density model>
+	    <pressure model>=1,2,3      - the 3 models from BBPS (arxiv 1109.3711)
+	    <density model>=1,2,3,4,5,6 - 1,2,3 are from BBPS, 4=SIS, 5=SUS, 6=NFW(Duffy 2008 concentration) 
+    	eg.) for tSZ or kSZ I would type $./bin/make_maptable bbps_1_1 1 1
+
+    To make maps you must first make pks2map
+        1.) go to /src/
+        2.) make pks2map
+        
+    To run pks2map
+        Usage: mpirun -np <nproc>  ./bin/pks2map <filein> <fileout> <tablefile> <profilecode> 
+	       	      [<zmin> <zmax> <mmin> <nside> <model> <scramble> <npix> <fov> <PSZcut>] 
+		      map choices: tsz, ksz, kap, tau
+            
+        <zmin>      - Minimum redshift for halos in map
+        <zmax>      - Maximum redshift for halos in map
+	<mmin>      - Minimum halo mass
+        <nside>     - healpy map nside (total pixels = 12*nside**2)
+        <model>     - use model 1 (AGN feedback from BBPS)
+        <scramble>  - 0 for off, 1 to randomly move halo to new position on sky
+        <npix>      - number of pixels on a side for flatsky 
+        <fov>       - field of view for flatsky
+        <PSZcut>    - 0 for off, 1 to cut halos below polynomial fit to 
+                      Planck 2015 selection function  
+            
+    For pasted profiles <tablefile>=maptable1 that you just created
+    
+    example to make a tSZ map from the catalogue found at
+    http://mocks.cita.utoronto.ca/data/websky/v0.0/halos.pksc
+    mpirun -np 8 ./bin/pks2map halos.pksc tsz_map_trial 
+    	       	 bbps_1_1 tsz 0.0 1.245 2.62e13 1024 1 0 1024 10 0 
+
